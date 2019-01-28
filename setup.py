@@ -4,13 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="openpay-python",
+    name="openpay-py",
     version="0.3.4",
     author="openpay",
     install_requires=[
         'lxml',
         'requests==2.20.1'],
-    author_email="sam91v@gmail.com",
+    author_email="pythondev@openpay.com.au",
     description="openpay python sdk",
     long_description=long_description,
     long_description_content_type="text/markdown",
