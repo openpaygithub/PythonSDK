@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="openpay-py",  # My package name
+    name="openpay-python",
     version="0.3.4",
-    author="samims",
+    author="openpay",
     install_requires=[
         'lxml',
         'requests==2.20.1'],
@@ -14,7 +14,7 @@ setuptools.setup(
     description="openpay python sdk",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/samims/openpay-python",
+    url="https://github.com/openpaygithub/PythonSDK",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
