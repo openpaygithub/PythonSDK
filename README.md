@@ -1,6 +1,6 @@
 ## Python Openpay SDK
 
-This module is created to achieve payment via. [_OpenPay_](https://www.openpay.com.au/) from any web based platform 
+This module is created to achieve payment via. [_Openpay_](https://www.openpay.com.au/) from any web based platform 
 created by *Python*. Every merchant can use admit his SDK for his clients to handle order creation to complete payment.  
 
 
