@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="openpay-py",
-    version="0.3.4",
-    author="openpay",
+    name="openpaysdk",
+    version="0.4",
+    author="openpaysdk",
     install_requires=[
         'lxml',
         'requests==2.20.1'],
