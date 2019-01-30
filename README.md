@@ -17,6 +17,12 @@ merchant= Merchant(jam_auth_token='your jam auth token', auth_token=None, openpa
 ``` 
 Here, **openpay_url_mode** is used to specify the URL mode as "_Live_" or "_Training_". 
 
+
+To set Merchant's _success_, _cancel_ and _failure_ url, call ```set_call_back_url()``` as follows:-
+```python
+merchant.set_callback_url(callback_url=val1, cancel_url=val2, failure_url=val3)
+```
+
 ### Creation of Client
 A particular **merchant** has a set of **clients** for his/her site. So, when we create a _client_ object then we must 
 associate it with its corresponding _merchant_ object.
@@ -27,27 +33,13 @@ client = Client(merchant=merchant)
  ```
 Later, we can also update a _client_ object using demographic information as follows:-
  ```python
-client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
-suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
-```
-Create object of the Merchant class passing at least "JamAuthToken" . If you are using **Django** then ```settings.py```
-is the best place to instantiate the Client
-
-```python
-from openpay import  Client, Merchant
-merchant= Merchant(jam_auth_token='your jam auth token')
- ```
-
-
-to set Merchant's success, cancel and failure url call set_call_back_url and to set user's info call the next function
-```python
-merchant.set_callback_url(callback_url, cancel_url, failure_url)
+client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
 ```
 
-create client aka user in your desired module, send merchant to attach this with client
+
+Another way to create _client_ is as follows:
 ```python
-client = Client(order_id=100, first_name='Abhisek', family_name='Roy', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
-suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985', merchant=merchant)
+client = Client(first_name='Test', family_name='User', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985', merchant=merchant)
 ```
 Here _```%b```_ *_Month as locale’s abbreviated name. Jan, Feb, …, Dec_*.
  So the date format should be like '**06 Jan 1985**'.
