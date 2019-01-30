@@ -7,6 +7,10 @@ headers = {'Content-Type': "application/xml", 'Cache-Control': "no-cache"}
 
 
 def prepare_response(input_func):
+    """
+    :param input_func: Input function on which this wrapper will work.
+    :return: Response Openpay response for input function.
+    """
     def wrapper(self, **kwargs):
         func_resp = input_func(self, **kwargs)
         if "http_method" in func_resp and func_resp["http_method"] == "POST":
@@ -15,7 +19,9 @@ def prepare_response(input_func):
             xml_response = response.text
             root = lxml.etree.fromstring(xml_response)
             resp = handle_response(root=root)
+
             if resp.get('PlanID', None) is not None:
+                print(type(resp['PlanID']))
                 self.plan_id = resp.get('PlanID')
             return resp
         elif "http_method" in func_resp and func_resp["http_method"] == "GET":

@@ -1,15 +1,35 @@
 ## Python Openpay SDK
 
 This module is created to achieve payment via. [_Openpay_](https://www.openpay.com.au/) from any web based platform 
-created by *Python*. Every merchant can use admit his SDK for his clients to handle order creation to complete payment.  
+created by *Python*. Every merchant can use this SDK for its clients to handle order creation to complete payment.  
 
 
 ### Installation
 
-```pip install openpay-py```
+```pip install python-openpay```
 
+### Creation of Merchant
+Every _merchant_ object is created using compulsory attribute **jam_auth_token** and along with two non-mandatory attributes 
+such as - **auth_token** and **openpay_url_mode**.
+```python
+from openpay import Merchant
+merchant= Merchant(jam_auth_token='your jam auth token', auth_token=None, openpay_url_mode="Live")
+``` 
+Here, **openpay_url_mode** is used to specify the URL mode as "_Live_" or "_Training_". 
 
-### Creation of Merchant and Client
+### Creation of Client
+A particular **merchant** has a set of **clients** for his/her site. So, when we create a _client_ object then we must 
+associate it with its corresponding _merchant_ object.
+
+```python
+from openpay import  Client
+client = Client(merchant=merchant)
+ ```
+Later, we can also update a _client_ object using demographic information as follows:-
+ ```python
+client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
+suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
+```
 Create object of the Merchant class passing at least "JamAuthToken" . If you are using **Django** then ```settings.py```
 is the best place to instantiate the Client
 
@@ -33,11 +53,19 @@ Here _```%b```_ *_Month as locale’s abbreviated name. Jan, Feb, …, Dec_*.
  So the date format should be like '**06 Jan 1985**'.
 Sending merchant as argument when creating Client object is **strictly required** in the above code, to proceed further.
 Call new_online_order method to create new order 
-```client.new_online_order(purchase_price, plan_creation_type)```
+```
+client.new_online_order(purchase_price, plan_creation_type)
+```
+Before calling online play check the price is valid or not
+```python
+client.is_valid(purchase=400)
+```
 
-To create online plan call
+If the price is valid, we can create online plan 
 
-```client.create_online_plan()```
+```client.create_online_plan()``` 
+
+The method will return a plan id which will be used to to initiate few other methods.
 
 To check order capture & order status you should call below function respectively
 
@@ -60,6 +88,6 @@ _In case of full refund, pass ```full_refund=True``` in place of new_purchase_pr
 
 If you want to give full refund, you just set the full refund to True, There is no need to pass the price,
 otherwise just passing the price is fine for partial refund
-
-To check order dispatch plan
-```client.order_dispatch_plan(plan_id)```
+At last
+To initiate dispatch order dispatch plan
+```client.order_dispatch_plan(plan_id='your plan id')```
