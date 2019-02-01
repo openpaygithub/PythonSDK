@@ -55,15 +55,15 @@ client.is_valid(purchase=400)
 
 If the price is valid, we can create online plan 
 
-```client.create_online_plan()``` 
+```client.create_online_plan(plan_id=plan_id)``` 
 
 The method will return a plan id which will be used to to initiate few other methods.
 
 To check order capture & order status you should call below function respectively
 
 ```python
-client.check_payment_capture(plan_id)
-client.check_order_status(plan_id)
+client.check_payment_capture(plan_id=plan_id)
+client.check_order_status(plan_id=plan_id)
 
 ```
 **_Note:_** You will get  plan id from the very first call of ```new_online_order```
@@ -75,7 +75,7 @@ To create refund you've to supply plan_id, new_purchase_price(which is previous 
 _In case of full refund, pass ```full_refund=True``` in place of new_purchase_price so the code will be like_
 
 ```python
-    client.refund_status(plan_id, full_return=True)
+    client.refund_status(plan_id=plan_id, full_return=True)
 ```
 
 If you want to give full refund, you just set the full refund to True, There is no need to pass the price,
