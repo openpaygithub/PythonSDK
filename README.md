@@ -9,77 +9,90 @@ created by *Python*. Every merchant can use this SDK for its clients to handle o
 ```pip install python-openpay```
 
 ### Creation of Merchant
-Every _merchant_ object is created using compulsory attribute **jam_auth_token** and along with two non-mandatory attributes 
-such as - **auth_token** and **openpay_url_mode**.
+Every _merchant_ object is created by using compulsory attribute **jam_auth_token** and along with other two non-mandatory attributes 
+such as - **auth_token** and **openpay_url_mode** as follows:-.
 ```python
 from openpay import Merchant
 merchant= Merchant(jam_auth_token='your jam auth token', auth_token=None, openpay_url_mode="Live")
 ``` 
-Here, **openpay_url_mode** is used to specify the URL mode as "_Live_" or "_Training_". 
+Here, **openpay_url_mode** is used to specify the mode of URL, such as "_Live_" or "_Training_". This is required for testing this SDK 
+in **demo** or **production** purpose. 
 
-
-To set Merchant's _success_, _cancel_ and _failure_ url, call ```set_call_back_url()``` as follows:-
+Now a _merchant_ can set up _success_, _cancel_ and _failure_ urls for redirecting a client during or after payment through **openpay** 
+as follows:-
 ```python
 merchant.set_callback_url(callback_url=val1, cancel_url=val2, failure_url=val3)
 ```
 
 ### Creation of Client
-A particular **merchant** has a set of **clients** for his/her site. So, when we create a _client_ object then we must 
-associate it with its corresponding _merchant_ object.
+A particular **merchant** has a set of **clients** for his site. So, when we create a _client_ object then we have to 
+associate a _merchant_ object with it. Possible ways to associate a _client_ with _merchant_ are as follows:-
 
 ```python
 from openpay import  Client
-client = Client(merchant=merchant)
+client = Client(merchant=merchant) # association with merchant
  ```
-Later, we can also update a _client_ object using demographic information as follows:-
+Later, we can update a _client_ object using **demographic information** as follows:-
  ```python
-client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
+client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
+suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
 ```
-
-
-Another way to create _client_ is as follows:
+Another way to create _client_ with two above steps in together as follows :
 ```python
-client = Client(first_name='Test', family_name='User', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985', merchant=merchant)
+client = Client(first_name='Test', family_name='User', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
+suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985', merchant=merchant)
 ```
-Here _```%b```_ *_Month as locale’s abbreviated name. Jan, Feb, …, Dec_*.
- So the date format should be like '**06 Jan 1985**'.
-Sending merchant as argument when creating Client object is **strictly required** in the above code, to proceed further.
-Call new_online_order method to create new order 
-```
-client.new_online_order(purchase_price, plan_creation_type)
-```
-Before calling online play check the price is valid or not
+**Note:** Here _```%b```_ *_Month as locale’s abbreviated name. Jan, Feb, …, Dec_*. So, any valid _date format_ should be 
+like '**06 Jan 1985**'. In addition, _postal code_ should be of length **4**.  
+ 
+### Online order creation
+Here, _client_ is going to order one or more item(s) from _merchant_ site and param _purchase_price_ is the sum of
+item(s) prices chosen by client.
 ```python
-client.is_valid(purchase=400)
+client.new_online_order(purchase_price=<total price>, plan_creation_type="Pending")
 ```
+After successful execution, a **plan ID** is created for the _client_.
+### Check Min and Max purchase price 
+```python
+client.min_max_purchase_price()
+```
+This method is used to check whether the _purchase_price_ is in the **minimum** and **maximum** price range of a
+_merchant_ or not.
 
-If the price is valid, we can create online plan 
+### Create online plan
+```python
+plan_link = client.create_online_plan(order_id= <orderID created from merchant site>)
+```
+Openpay provides all possible plans to pay _purchase_price_ for this _client_. Once a plan is chosen by _client_ then Openpay 
+redirects him for payment.
 
-```client.create_online_plan(plan_id=plan_id)``` 
-
-The method will return a plan id which will be used to to initiate few other methods.
-
-To check order capture & order status you should call below function respectively
-
+### Check payment and order status
+To check payment and order status for a _client_, we should call below functions with **plan_id** as argument respectively.
 ```python
 client.check_payment_capture(plan_id=plan_id)
 client.check_order_status(plan_id=plan_id)
 
 ```
-**_Note:_** You will get  plan id from the very first call of ```new_online_order```
-
-To create refund you've to supply plan_id, new_purchase_price(which is previous price - refund price)
-
-```client.refund_status(plan_id, new_purchase_price)```
-
-_In case of full refund, pass ```full_refund=True``` in place of new_purchase_price so the code will be like_
+### Create refund
+If _merchant_ wants to create any **partial** refund for a plan then he has to set arguments _plan_id_ and 
+_new_purchase_price_ as follows:-
 
 ```python
-    client.refund_status(plan_id=plan_id, full_return=True)
+client.refund_status(plan_id=plan_id, new_purchase_price= <revised purchase price>)
+```
+**Note:** Argument _new_purchase_price_ is calculated as follows:-
+```markdown
+previous purchase price - amount of price to refund
 ```
 
-If you want to give full refund, you just set the full refund to True, There is no need to pass the price,
-otherwise just passing the price is fine for partial refund
-At last
-To initiate dispatch order dispatch plan
-```client.order_dispatch_plan(plan_id='your plan id')```
+In case of **full** refund, set arguments _plan_id_ and _full_refund_ as follows:-
+```python
+client.refund_status(plan_id=plan_id, full_return=True)
+```
+
+### Create dispatch
+If _merchant_ wants to initiate a _dispatch_ of an order then he will following method with corresponding _plan_id_ 
+of that order as follows:-
+```python
+client.order_dispatch_plan(plan_id=plan_id)
+```
