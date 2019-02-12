@@ -44,7 +44,12 @@ suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985', merchant
 ```
 **Note:** Here _```%b```_ *_Month as locale’s abbreviated name. Jan, Feb, …, Dec_*. So, any valid _date format_ should be 
 like '**06 Jan 1985**'. In addition, _postal code_ should be of length **4**.  
- 
+### Check if price is valid for payment(comes in min max range)
+Before initiating order, need to check if price is valid with
+```python
+client.is_valid_price(price=<payment price>)
+```
+If the status is True or error is blank in response then we can proceed further with the next call ```new_online_order```
 ### Online order creation
 Here, _client_ is going to order one or more item(s) from _merchant_ site and param _purchase_price_ is the sum of
 item(s) prices chosen by client.
