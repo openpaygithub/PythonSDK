@@ -5,13 +5,15 @@ from .payment_decorators import prepare_response
 no_merchant_found = {"status": False, "message": "No merchant is associated with this client..", "value": None}
 no_order_id = {"status": False, "message": "No order number is associated to create online plan"}
 
+
 class Merchant(object):
-    '''
+    """
     Create a merchant using JamAuthToken and Authtoken
-    '''
+    """
+
     def __init__(self, jam_token, auth_token=None, openpay_url_mode="Live"):
         self.JamAuthToken = jam_token
-        self.AuthToken =  auth_token or self.JamAuthToken.split('|')[1]
+        self.AuthToken = auth_token or self.JamAuthToken.split('|')[1]
         self.OpenURLMode = openpay_url_mode
         self.JamCallbackURL, self.JamCancelURL, self.JamFailURL = None, None, None
 
@@ -26,11 +28,20 @@ class Merchant(object):
         self.JamCancelURL = cancel_url
         self.JamFailURL = failure_url
 
+    @prepare_response
+    def online_order_fraud_alert(self, plan_id):
+        jam_auth_token = self.JamAuthToken
+        attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("plan_id", plan_id)])
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderFraudAlert".format(
+            self.OpenURLMode)
+        return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
+
 
 class Client(object):
-    '''
+    """
     Create a client under a merchant
-    '''
+    """
+
     def __init__(self, merchant, **kwargs):
         self.merchant = merchant
         for key, value in kwargs.items():
@@ -57,7 +68,8 @@ class Client(object):
     def min_max_purchase_price(self):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token)])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/MinMaxPurchasePrice".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/MinMaxPurchasePrice".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     def is_valid_price(self, price):
@@ -87,7 +99,8 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("purchase_price", purchase_price), ("plan_creation_type", plan_creation_type)])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/NewOnlineOrder".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/NewOnlineOrder".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -104,10 +117,10 @@ class Client(object):
             "JamFirstName": self.first_name,
             "JamFamilyName": self.family_name,
             "JamEmail": self.email,
-            "JamAddress1": self.address_1,
-            "JamSuburb": self.suburb,
-            "JamState": self.state,
-            "JamPostcode": str(self.postcode)
+            "JamAddress1": self.res_address_1,
+            "JamResSuburb": self.res_suburb,
+            "JamResState": self.res_state,
+            "JamResPostcode": str(self.res_postcode),
         }
         headers = {'Cache-Control': "no-cache"}
         url = "https://retailer.myopenpay.com.au/WebSales{}/".format(self.merchant.OpenURLMode)
@@ -118,7 +131,8 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("plan_iD", plan_id)])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderCapturePayment".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderCapturePayment".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -126,7 +140,8 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("plan_iD", plan_id)])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderStatus".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderStatus".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -136,12 +151,15 @@ class Client(object):
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token), ("plan_iD", plan_id),
                                  ("new_purchase_price", new_purchase_price), ("full_refund", kwargs.get("full_refund",
                                                                                                         False))])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderReduction".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderReduction".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
     def order_dispatch_plan(self, plan_id):
         jam_auth_token = self.merchant.JamAuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("plan_id", plan_id)])
-        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderDispatchPlan".format(self.merchant.OpenURLMode)
+        url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/OnlineOrderDispatchPlan".format(
+            self.merchant.OpenURLMode)
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
+

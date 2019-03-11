@@ -32,11 +32,13 @@ associate a _merchant_ object with it. Possible ways to associate a _client_ wit
 from openpay import  Client
 client = Client(merchant=merchant) # association with merchant
  ```
-Later, we can update a _client_ object using **demographic information** as follows:-
+Later, we can update a _client_ object using **demographic information** as follows(res for residential and del for delivery address):-
  ```python
-client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
-suburb='Melbourne', state='Victoria', postcode=3000, dob='06 Jan 1985')
+client(first_name='openpay', family_name='test', email='testdevloper007@gmail.com', res_address_1='15/520 Collins Street',
+res_suburb='Melbourne', res_state='Victoria', res_postcode=3000, dob='06 Jan 1985')
 ```
+Add just add del_ suffix like ```del_address_1``` instead of ```res_address_1``` for ```address, suburb and state```.
+
 Another way to create _client_ with two above steps in together as follows :
 ```python
 client = Client(first_name='Test', family_name='User', email='testdevloper007@gmail.com', address_1='15/520 Collins Street',
@@ -101,3 +103,6 @@ of that order as follows:-
 ```python
 client.order_dispatch_plan(plan_id=plan_id)
 ```
+
+### fraud altert
+If any fraud detected by Merchant Just 
