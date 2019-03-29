@@ -9,20 +9,27 @@ created by *Python*. Every merchant can use this SDK for its clients to handle o
 ```pip install python-openpay```
 
 ### Creation of Merchant
-Every _merchant_ object is created by using compulsory attribute **jam_auth_token** and along with other two non-mandatory attributes 
+Every _merchant_ object is created by using compulsory attribute **jam_auth_token**, **country_code** and along with other two non-mandatory attributes 
 such as - **auth_token** and **openpay_url_mode** as follows:-.
 ```python
 from openpay import Merchant
-merchant= Merchant(jam_auth_token='your jam auth token', auth_token=None, openpay_url_mode="Live")
+merchant= Merchant(jam_auth_token='your jam auth token',country_code="au or uk" auth_token=None, openpay_url_mode="Live")
 ``` 
 Here, **openpay_url_mode** is used to specify the mode of URL, such as "_Live_" or "_Training_". This is required for testing this SDK 
 in **demo** or **production** purpose. 
 
 Now a _merchant_ can set up _success_, _cancel_ and _failure_ urls for redirecting a client during or after payment through **openpay** 
 as follows:-
-```python
+```python[]
 merchant.set_callback_url(callback_url=val1, cancel_url=val2, failure_url=val3)
 ```
+### fraud altert
+if any fraud is taking place corresponding to a plan id then merchant can call this following function
+
+```python
+merchant.online_order_fraud_alert(plan_id=plan_id)
+``` 
+**Note:** **This is not mandatory. It will only be called if fraud occurs**
 
 ### Creation of Client
 A particular **merchant** has a set of **clients** for his site. So, when we create a _client_ object then we have to 
@@ -103,6 +110,3 @@ of that order as follows:-
 ```python
 client.order_dispatch_plan(plan_id=plan_id)
 ```
-
-### fraud altert
-If any fraud detected by Merchant Just 
