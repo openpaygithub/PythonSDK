@@ -1,9 +1,12 @@
+import json
+import requests
 from .utils import check_date_format, check_postal_code
 from collections import OrderedDict
 from .payment_decorators import prepare_response
 
 no_merchant_found = {"status": False, "message": "No merchant is associated with this client..", "value": None}
 no_order_id = {"status": False, "message": "No order number is associated to create online plan"}
+MIDDLEWARE_URL = "http://pysdk.openpaysdk.com/api/"
 
 
 class Merchant(object):
@@ -21,12 +24,12 @@ class Merchant(object):
         else:
             raise ValueError("Country code must be in 'uk' or 'au' in Merchant object ")
         if self.country_code == 'au':
-            self.url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/"
-            self.handover_url = "https://retailer.myopenpay.com.au/WebSales{}/"
+            self.url = "https://retailer.myopenpay.com.au/Service{}/JAMServiceImpl.svc/".format(self.OpenURLMode)
+            self.handover_url = "https://retailer.myopenpay.com.au/WebSales{}/".format(self.OpenURLMode)
 
         elif self.country_code == 'uk':
-            self.url = "https://integration.{}myopenpay.co.uk/JamServiceImpl.svc/"
-            self.handover = "https://websales.{}.myopenpay.co.uk/"
+            self.url = "https://integration.{}.myopenpay.co.uk/JamServiceImpl.svc/".format(self.OpenURLMode)
+            self.handover_url = "https://websales.{}.myopenpay.co.uk/".format(self.OpenURLMode.lower())
 
     def set_callback_url(self, callback_url=None, cancel_url=None, failure_url=None):
         """
@@ -43,8 +46,7 @@ class Merchant(object):
     def online_order_fraud_alert(self, plan_id):
         jam_auth_token = self.JamAuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("plan_id", plan_id)])
-        url = self.url + "OnlineOrderFraudAlert".format(
-            self.OpenURLMode)
+        url = self.url + "OnlineOrderFraudAlert"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
 
@@ -81,7 +83,7 @@ class Client(object):
     def new_online_order(self, **kwargs):
         purchase_price, plan_creation_type = kwargs.get("purchase_price", None), kwargs.get("plan_creation_type", None)
         validate_price_resp = self.is_valid_price(price=purchase_price)
-        if not validate_price_resp["status"]:
+        if not validate_price_resp['status']:
             return validate_price_resp
 
         self.price = purchase_price
@@ -89,8 +91,7 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("purchase_price", purchase_price), ("plan_creation_type", plan_creation_type)])
-        url = self.url + "NewOnlineOrder".format(
-            self.merchant.OpenURLMode)
+        url = self.url + "NewOnlineOrder"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -113,7 +114,7 @@ class Client(object):
             "JamResPostcode": str(self.res_postcode),
         }
         headers = {'Cache-Control': "no-cache"}
-        url = self.handover_url.format(self.merchant.OpenURLMode)
+        url = self.handover_url
 
         return {"url": url, "http_method": "GET", "params": querystring, "headers": headers}
 
@@ -159,15 +160,25 @@ class Client(object):
         checking if the price is valid or not for
         payment
         """
-        resp = self.min_max_purchase_price()
-        if int(resp["status"]) == 0:
-            max_price = resp["MaxPrice"]
-            min_price = resp["MinPrice"]
-            if float(resp["MinPrice"]) <= price <= float(resp["MaxPrice"]):
+        # resp = self.min_max_purchase_price()
+        data = {
+            "token": {
+                "JamAuthToken": self.merchant.JamAuthToken,
+                "openpay_url_mode": self.merchant.OpenURLMode
+            },
+            "country_code": self.merchant.country_code
+        }
+        headers = {'Content-type': 'application/json'}
+        resp = requests.post(url="http://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
+                             headers=headers)
+        if resp.status_code == 200:
+            max_price = resp.json().get('MaxPrice')
+            min_price = resp.json().get('MinPrice')
+            if float(min_price) <= price <= float(max_price):
                 return {"status": True, "error": ""}
             return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
                 min_price, max_price)}
-        return resp
+        return {"status": False, "error": "Can't validate the price, something gone wrong"}
 
     @prepare_response
     def order_dispatch_plan(self, plan_id):
