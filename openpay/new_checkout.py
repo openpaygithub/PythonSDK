@@ -50,10 +50,10 @@ class Merchant(object):
         self.JamFailURL = failure_url
 
     @prepare_response
-    def online_order_fraud_alert(self, plan_id):
+    def online_order_fraud_alert(self, plan_id, details):
         jam_auth_token = self.JamAuthToken
         attr_dict = OrderedDict(
-            [("jam_auth_token", jam_auth_token), ("plan_id", plan_id)])
+            [("jam_auth_token", jam_auth_token), ("plan_id", plan_id), ("details", details)])
         url = self.url + "OnlineOrderFraudAlert"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
@@ -98,8 +98,29 @@ class Client(object):
         self.price = purchase_price
         self.plan_creation_type = plan_creation_type
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
-        attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
-                                 ("purchase_price", purchase_price), ("plan_creation_type", plan_creation_type)])
+
+        attr_dict = OrderedDict([("jam_auth_token", jam_auth_token),
+                                 ("auth_token", auth_token),
+                                 ("purchase_price", purchase_price),
+                                 ("plan_creation_type", plan_creation_type),
+                                 ('retailer_order_no', getattr(self, 'order_id', '')),
+                                 ('first_name', getattr(self, 'first_name', '')),
+                                 ('family_name', getattr(self, 'family_name', '')),
+                                 ('email', getattr(self, 'email', '')),
+                                 ('date_of_birth', getattr(self, 'dob', '')),
+                                 ('gender', getattr(self, 'gender', '')),
+                                 ('phone_number', getattr(self, 'phone_number', '')),
+                                 ('res_address1', getattr(self, 'res_address_1', '')),
+                                 ('res_address2', getattr(self, 'res_address_2', '')),
+                                 ('res_suburb', getattr(self, 'res_suburb', '')),
+                                 ('res_state', getattr(self, 'res_state', '')),
+                                 ('res_post_code', getattr(self, 'res_post_code', '')),
+                                 ('del_address1', getattr(self, 'del_address_1', '')),
+                                 ('del_address2', getattr(self, 'del_address_2'), ''),
+                                 ('del_suburb', getattr(self, 'del_suburb', '')),
+                                 ('del_strate', getattr(self, 'del_state', '')),
+                                 ('del_post_code', getattr(self, 'del_post_code'))
+                                 ])
         url = self.url + "NewOnlineOrder"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
@@ -112,15 +133,7 @@ class Client(object):
             "JamFailURL": self.merchant.JamFailURL,
             "JamAuthToken": self.merchant.JamAuthToken,
             "JamPlanID": self.plan_id,
-            "JamRetailerOrderNo": str(self.order_id),
-            "JamPrice": str(self.price),
-            "JamFirstName": self.first_name,
-            "JamFamilyName": self.family_name,
-            "JamEmail": self.email,
-            "JamAddress1": self.res_address_1,
-            "JamResSuburb": self.res_suburb,
-            "JamResState": self.res_state,
-            "JamResPostcode": str(self.res_postcode),
+
         }
         headers = {'Cache-Control': "no-cache"}
         url = self.handover_url
