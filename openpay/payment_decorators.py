@@ -21,7 +21,6 @@ def prepare_response(input_func):
             resp = handle_response(root=root)
 
             if resp.get('PlanID', None) is not None:
-                print(type(resp['PlanID']))
                 self.plan_id = resp.get('PlanID')
             return resp
         elif "http_method" in func_resp and func_resp["http_method"] == "GET":

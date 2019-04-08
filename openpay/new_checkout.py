@@ -16,8 +16,8 @@ class Merchant(object):
     Create a merchant using JamAuthToken and(or) AuthToken
     """
 
-    def __init__(self, jam_token, country_code, auth_token=None, openpay_url_mode="Live"):
-        self.JamAuthToken = jam_token
+    def __init__(self, jam_auth_token, country_code, auth_token=None, openpay_url_mode="Live"):
+        self.JamAuthToken = jam_auth_token
         self.AuthToken = auth_token or self.JamAuthToken.split('|')[1]
         self.OpenURLMode = openpay_url_mode
         self.JamCallbackURL, self.JamCancelURL, self.JamFailURL = None, None, None
@@ -94,7 +94,6 @@ class Client(object):
         validate_price_resp = self.is_valid_price(price=purchase_price)
         if not validate_price_resp['status']:
             return validate_price_resp
-
         self.price = purchase_price
         self.plan_creation_type = plan_creation_type
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
@@ -103,23 +102,31 @@ class Client(object):
                                  ("auth_token", auth_token),
                                  ("purchase_price", purchase_price),
                                  ("plan_creation_type", plan_creation_type),
-                                 ('retailer_order_no', getattr(self, 'order_id', '')),
+                                 ('retailer_order_no', getattr(
+                                     self, 'order_id', '')),
                                  ('first_name', getattr(self, 'first_name', '')),
                                  ('family_name', getattr(self, 'family_name', '')),
-                                 ('email', getattr(self, 'email', '')),
+                                 ('email', getattr(self, 'email')),
                                  ('date_of_birth', getattr(self, 'dob', '')),
                                  ('gender', getattr(self, 'gender', '')),
-                                 ('phone_number', getattr(self, 'phone_number', '')),
-                                 ('res_address1', getattr(self, 'res_address_1', '')),
-                                 ('res_address2', getattr(self, 'res_address_2', '')),
+                                 ('phone_number', getattr(
+                                     self, 'phone_number', '')),
+                                 ('res_address1', getattr(
+                                     self, 'res_address_1', '')),
+                                 ('res_address2', getattr(
+                                     self, 'res_address_2', '')),
                                  ('res_suburb', getattr(self, 'res_suburb', '')),
                                  ('res_state', getattr(self, 'res_state', '')),
-                                 ('res_post_code', getattr(self, 'res_post_code', '')),
-                                 ('del_address1', getattr(self, 'del_address_1', '')),
-                                 ('del_address2', getattr(self, 'del_address_2'), ''),
+                                 ('res_post_code', getattr(
+                                     self, 'res_post_code', '')),
+                                 ('del_address1', getattr(
+                                     self, 'del_address_1', '')),
+                                 ('del_address2', getattr(
+                                     self, 'del_address_2', '')),
                                  ('del_suburb', getattr(self, 'del_suburb', '')),
                                  ('del_strate', getattr(self, 'del_state', '')),
-                                 ('del_post_code', getattr(self, 'del_post_code'))
+                                 ('del_post_code', getattr(
+                                     self, 'del_post_code', ''))
                                  ])
         url = self.url + "NewOnlineOrder"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
@@ -145,8 +152,7 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("plan_iD", plan_id)])
-        url = self.url + "OnlineOrderCapturePayment".format(
-            self.merchant.OpenURLMode)
+        url = self.url + "OnlineOrderCapturePayment"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -154,8 +160,7 @@ class Client(object):
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token),
                                  ("plan_iD", plan_id)])
-        url = self.url + "OnlineOrderStatus".format(
-            self.merchant.OpenURLMode)
+        url = self.url + "OnlineOrderStatus"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
@@ -166,35 +171,36 @@ class Client(object):
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token), ("auth_token", auth_token), ("plan_iD", plan_id),
                                  ("new_purchase_price", new_purchase_price), ("full_refund", kwargs.get("full_refund",
                                                                                                         False))])
-        url = self.url + "OnlineOrderReduction".format(
-            self.merchant.OpenURLMode)
+        url = self.url + "OnlineOrderReduction"
+        return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
+
+    @prepare_response
+    def min_max_purchase_price(self):
+                # jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
+
+        # data = {
+        #     "token": {
+        #         "JamAuthToken": self.merchant.JamAuthToken,
+        #         "AuthToken": self.merchant.AuthToken,
+        #         "openpay_url_mode": self.merchant.OpenURLMode
+        #     },
+        #     "country_code": self.merchant.country_code
+        # }
+
+        # resp = requests.post(url="https://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
+        #                      headers=headers)
+        # if resp.status_code == 200:
+        #     resp = resp.json()
+        # else:
+        #     resp = {'success': False}
+        # return resp
+        jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
+        attr_dict = OrderedDict(
+            [("jam_auth_token", jam_auth_token), ("auth_token", auth_token)])
+        url = self.url + "MinMaxPurchasePrice"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     # @prepare_response
-    def min_max_purchase_price(self):
-        # jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
-        # attr_dict = OrderedDict(
-        #     [("jam_auth_token", jam_auth_token), ("auth_token", auth_token)])
-        # url = self.url + "MinMaxPurchasePrice".format(
-        #     self.merchant.OpenURLMode)
-        # return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
-        data = {
-            "token": {
-                "JamAuthToken": self.merchant.JamAuthToken,
-                "AuthToken": self.merchant.AuthToken,
-                "openpay_url_mode": self.merchant.OpenURLMode
-            },
-            "country_code": self.merchant.country_code
-        }
-        headers = {'Content-type': 'application/json'}
-        resp = requests.post(url="https://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
-                             headers=headers)
-        if resp.status_code == 200:
-            resp = resp.json()
-        else:
-            resp = {'success': False}
-        return resp
-
     def is_valid_price(self, price):
         """
         checking if the price is valid or not for
@@ -210,16 +216,27 @@ class Client(object):
             "country_code": self.merchant.country_code
         }
         headers = {'Content-type': 'application/json'}
-        resp = requests.post(url="https://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
+        resp = requests.post(url="http://127.0.0.1:8000/api/min-max-check/", data=json.dumps(data),
                              headers=headers)
         if resp.status_code == 200:
             max_price = resp.json().get('MaxPrice')
             min_price = resp.json().get('MinPrice')
+            print(resp.json())
             if float(min_price) <= price <= float(max_price):
                 return {"status": True, "error": ""}
             return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
                 min_price, max_price)}
         return {"status": False, "error": "Can't validate the price, something gone wrong"}
+
+        # resp = self.min_max_purchase_price()
+        # if int(resp["status"]) == 0:
+        #     max_price = resp["MaxPrice"]
+        #     min_price = resp["MinPrice"]
+        #     if float(resp["MinPrice"]) <= price <= float(resp["MaxPrice"]):
+        #         return {"status": True, "error": ""}
+        #     return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
+        #         min_price, max_price)}
+        # return resp
 
     @prepare_response
     def order_dispatch_plan(self, plan_id):
