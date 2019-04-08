@@ -216,7 +216,7 @@ class Client(object):
             "country_code": self.merchant.country_code
         }
         headers = {'Content-type': 'application/json'}
-        resp = requests.post(url="http://127.0.0.1:8000/api/min-max-check/", data=json.dumps(data),
+        resp = requests.post(url="https://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
                              headers=headers)
         if resp.status_code == 200:
             max_price = resp.json().get('MaxPrice')
@@ -243,6 +243,5 @@ class Client(object):
         jam_auth_token = self.merchant.JamAuthToken
         attr_dict = OrderedDict(
             [("jam_auth_token", jam_auth_token), ("plan_id", plan_id)])
-        url = self.url + "OnlineOrderDispatchPlan".format(
-            self.merchant.OpenURLMode)
+        url = self.url + "OnlineOrderDispatchPlan"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
