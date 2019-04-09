@@ -215,25 +215,25 @@ class Client(object):
         headers = {'Content-type': 'application/json'}
         resp = requests.post(url="https://pysdk.openpaysdk.com/api/min-max-check/", data=json.dumps(data),
                              headers=headers)
-        if resp.status_code == 200:
-            max_price = resp.json().get('MaxPrice')
-            min_price = resp.json().get('MinPrice')
-            print(resp.json())
-            if float(min_price) <= price <= float(max_price):
-                return {"status": True, "error": ""}
-            return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
-                min_price, max_price)}
-        return {"status": False, "error": "Can't validate the price, something gone wrong"}
-
-        # resp = self.min_max_purchase_price()
-        # if int(resp["status"]) == 0:
-        #     max_price = resp["MaxPrice"]
-        #     min_price = resp["MinPrice"]
-        #     if float(resp["MinPrice"]) <= price <= float(resp["MaxPrice"]):
+        # if resp.status_code == 200:
+        #     max_price = resp.json().get('MaxPrice')
+        #     min_price = resp.json().get('MinPrice')
+        #     print(resp.json())
+        #     if float(min_price) <= price <= float(max_price):
         #         return {"status": True, "error": ""}
         #     return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
         #         min_price, max_price)}
-        # return resp
+        # return {"status": False, "error": "Can't validate the price, something gone wrong"}
+
+        resp = self.min_max_purchase_price()
+        if int(resp["status"]) == 0:
+            max_price = resp["MaxPrice"]
+            min_price = resp["MinPrice"]
+            if float(resp["MinPrice"]) <= price <= float(resp["MaxPrice"]):
+                return {"status": True, "error": ""}
+            return {"status": False, "error": "You purchase price is not under min-max range ({} to {})".format(
+                min_price, max_price)}
+        return resp
 
     @prepare_response
     def order_dispatch_plan(self, plan_id):
