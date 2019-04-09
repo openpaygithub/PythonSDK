@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="python-openpay",
-    version="0.6",
+    version="0.6.1",
     author="openpay",
     install_requires=[
         'lxml',
