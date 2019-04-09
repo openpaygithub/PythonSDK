@@ -88,16 +88,13 @@ class Client(object):
                 setattr(self, key, kwargs.get(key, None))
 
     @prepare_response
-    def new_online_order(self, **kwargs):
-        purchase_price, plan_creation_type = kwargs.get(
-            "purchase_price", None), kwargs.get("plan_creation_type", None)
+    def new_online_order(self, purchase_price, plan_creation_type, ** kwargs):
         validate_price_resp = self.is_valid_price(price=purchase_price)
         if not validate_price_resp['status']:
             return validate_price_resp
         self.price = purchase_price
         self.plan_creation_type = plan_creation_type
         jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
-
         attr_dict = OrderedDict([("jam_auth_token", jam_auth_token),
                                  ("auth_token", auth_token),
                                  ("purchase_price", purchase_price),
@@ -132,8 +129,8 @@ class Client(object):
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     @prepare_response
-    def create_online_plan(self, order_id):
-        setattr(self, "order_id", order_id)
+    def create_online_plan(self):
+        # setattr(self, "order_id", order_id)
         querystring = {
             "JamCallbackURL": self.merchant.JamCallbackURL,
             "JamCancelURL": self.merchant.JamCancelURL,
