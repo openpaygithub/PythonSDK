@@ -88,7 +88,7 @@ class Client(object):
                 setattr(self, key, kwargs.get(key, None))
 
     @prepare_response
-    def new_online_order(self, purchase_price, plan_creation_type, ** kwargs):
+    def new_online_order(self, purchase_price, plan_creation_type, **kwargs):
         validate_price_resp = self.is_valid_price(price=purchase_price)
         if not validate_price_resp['status']:
             return validate_price_resp
@@ -171,9 +171,34 @@ class Client(object):
         url = self.url + "OnlineOrderReduction"
         return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
-    @prepare_response
+    # @prepare_response
     def min_max_purchase_price(self):
-                # jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
+        # jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
+
+        url = self.url + "RetailerPlanInformation"
+        data = {
+            "JamAuthToken": self.merchant.JamAuthToken
+        }
+
+        resp = requests.post(url,
+                             data=json.dumps(data),
+                             headers={'Content-Type': 'application/json'}
+                             )
+        if resp.status_code != 200:
+            data = {'status': resp.status_code}
+        elif resp.json()['status'] > 0:
+            data = {'status': resp.json()['status'], 'reason': resp.json()['reason']}
+        if resp.json()['status'] == 0:
+            dict_resp = resp.json()
+            min_price = dict_resp['RetailerPlanPeriods'][0]['MinPurchasePrice']
+            max_price = dict_resp['RetailerPlanPeriods'][0]['MaxPurchasePrice']
+            data = {
+                'status': 0,
+                'MinPrice': min_price,
+                'MaxPrice': max_price
+
+            }
+        return data
 
         # data = {
         #     "token": {
@@ -191,11 +216,11 @@ class Client(object):
         # else:
         #     resp = {'success': False}
         # return resp
-        jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
-        attr_dict = OrderedDict(
-            [("jam_auth_token", jam_auth_token), ("auth_token", auth_token)])
-        url = self.url + "MinMaxPurchasePrice"
-        return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
+        # jam_auth_token, auth_token = self.merchant.JamAuthToken, self.merchant.AuthToken
+        # attr_dict = OrderedDict(
+        #     [("jam_auth_token", jam_auth_token), ("auth_token", auth_token)])
+        # url = self.url + "MinMaxPurchasePrice"
+        # return {"attr_dict": attr_dict, "url": url, "http_method": "POST"}
 
     # @prepare_response
     def is_valid_price(self, price):
